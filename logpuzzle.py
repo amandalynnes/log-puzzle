@@ -13,7 +13,7 @@ Here's what a puzzle URL looks like (spread out onto multiple lines):
 HTTP/1.0" 302 528 "-" "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US;
 rv:1.8.1.6) Gecko/20070725 Firefox/2.0.0.6"
 """
-__author__ = "Amanda Simmons"
+__author__ = "Amanda Simmons, Piero M, Pete M"
 
 import os
 import re
@@ -27,9 +27,25 @@ def read_urls(filename):
     extracting the hostname from the filename itself, sorting
     alphabetically in increasing order, and screening out duplicates.
     """
-    # +++your code here+++
-    pass
-
+    with open(filename, 'r') as f:
+        # file_contents = f.readlines()
+        list_of_tups = []
+        for line in f:
+            pattern = r"GET\s(.*/\w-(\w+).\w+)"
+            match_obj = re.search(pattern, line)
+            if match_obj:
+                url = match_obj.group(1)
+                file_name_end = match_obj.group(2)
+                file_end_url_tup = (file_name_end, url)
+                list_of_tups.append(file_end_url_tup)
+                print(url)
+                print(file_name_end)
+        set_of_tups = set(list_of_tups)
+        sorted_list_of_tups = sorted(set_of_tups)
+        print(sorted_list_of_tups)
+        print(set_of_tups)
+        alpha_sorted_urls = [tup[1] for tup in sorted_list_of_tups]
+        return alpha_sorted_urls
 
 def download_images(img_urls, dest_dir):
     """Given the URLs already in the correct order, downloads
