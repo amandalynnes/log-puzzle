@@ -58,12 +58,15 @@ def download_images(img_urls, dest_dir):
     Creates the directory if necessary.
     """
     os.makedirs(dest_dir)
+    with open(f'{dest_dir}/index.html', 'a') as f:
+        f.write('<html>\n<body>')
     for index, img_url in enumerate(img_urls):
         print(f'Retrieving {img_url} at index:{index}')
         local_filename, headers = urllib.request.urlretrieve(img_url, f'{dest_dir}/img{index}')
-        html = open(local_filename)
-        html.close()
-
+        with open(f'{dest_dir}/index.html', 'a') as f:
+            f.write(f'<img src="img{index}">')
+    with open(f'{dest_dir}/index.html', 'a') as f:
+        f.write('</body>\n</html>')
 
 
 def create_parser():
