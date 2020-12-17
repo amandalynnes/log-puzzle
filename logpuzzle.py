@@ -13,7 +13,7 @@ Here's what a puzzle URL looks like (spread out onto multiple lines):
 HTTP/1.0" 302 528 "-" "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US;
 rv:1.8.1.6) Gecko/20070725 Firefox/2.0.0.6"
 """
-__author__ = "Amanda Simmons, Piero M, Pete M"
+__author__ = "Amanda Simmons, Piero M, Pete M, Kano M"
 
 import os
 import re
@@ -30,6 +30,8 @@ def read_urls(filename):
     with open(filename, 'r') as f:
         # file_contents = f.readlines()
         list_of_tups = []
+        split_website = filename.split('_')
+        filename_base = f'http://{split_website[1]}'
         for line in f:
             pattern = r"GET\s(.*/\w-(\w+).\w+)"
             match_obj = re.search(pattern, line)
@@ -38,13 +40,13 @@ def read_urls(filename):
                 file_name_end = match_obj.group(2)
                 file_end_url_tup = (file_name_end, url)
                 list_of_tups.append(file_end_url_tup)
-                print(url)
-                print(file_name_end)
+                # print(url)
+                # print(file_name_end)
         set_of_tups = set(list_of_tups)
         sorted_list_of_tups = sorted(set_of_tups)
-        print(sorted_list_of_tups)
-        print(set_of_tups)
-        alpha_sorted_urls = [tup[1] for tup in sorted_list_of_tups]
+        # print(sorted_list_of_tups)
+        # print(set_of_tups)
+        alpha_sorted_urls = [filename_base + tup[1] for tup in sorted_list_of_tups]
         return alpha_sorted_urls
 
 def download_images(img_urls, dest_dir):
@@ -55,8 +57,13 @@ def download_images(img_urls, dest_dir):
     to show each local image file.
     Creates the directory if necessary.
     """
-    # +++your code here+++
-    pass
+    os.makedirs(dest_dir)
+    for index, img_url in enumerate(img_urls):
+        print(f'Retrieving {img_url} at index:{index}')
+        local_filename, headers = urllib.request.urlretrieve(img_url, f'{dest_dir}/img{index}')
+        html = open(local_filename)
+        html.close()
+
 
 
 def create_parser():
