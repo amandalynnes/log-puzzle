@@ -28,26 +28,37 @@ def read_urls(filename):
     alphabetically in increasing order, and screening out duplicates.
     """
     with open(filename, 'r') as f:
-        # file_contents = f.readlines()
         list_of_tups = []
         split_website = filename.split('_')
         filename_base = f'http://{split_website[1]}'
         for line in f:
-            pattern = r"GET\s(.*/\w-(\w+).\w+)"
-            match_obj = re.search(pattern, line)
-            if match_obj:
-                url = match_obj.group(1)
-                file_name_end = match_obj.group(2)
+            match_url_obj = re.search(r"GET (\S+)", line)
+            url = match_url_obj.group(1)
+            match_obj_double = re.search(r"(.*-\w+-(\w+)\.\w+)", url)
+            if not match_obj_double:
+                pattern = r"GET\s(.*/\w-(\w+).\w+)"
+                match_obj_single = re.search(pattern, line)
+            if match_obj_double:
+                if 'puzzle' not in line:
+                    continue
+                file_name_end = match_obj_double.group(2)
                 file_end_url_tup = (file_name_end, url)
                 list_of_tups.append(file_end_url_tup)
-                # print(url)
-                # print(file_name_end)
-        set_of_tups = set(list_of_tups)
-        sorted_list_of_tups = sorted(set_of_tups)
-        # print(sorted_list_of_tups)
-        # print(set_of_tups)
-        alpha_sorted_urls = [filename_base + tup[1] for tup in sorted_list_of_tups]
+                set_of_tups = set(list_of_tups)
+                sorted_list_of_tups = sorted(set_of_tups)
+            elif match_obj_single:
+                url = match_obj_single.group(1)
+                if 'puzzle' not in line:
+                    continue
+                file_name_end = match_obj_single.group(2)
+                file_end_url_tup = (file_name_end, url)
+                list_of_tups.append(file_end_url_tup)
+                set_of_tups = set(list_of_tups)
+                sorted_list_of_tups = sorted(set_of_tups)
+        alpha_sorted_urls = [
+            filename_base + tup[1] for tup in sorted_list_of_tups]
         return alpha_sorted_urls
+
 
 def download_images(img_urls, dest_dir):
     """Given the URLs already in the correct order, downloads
@@ -62,7 +73,8 @@ def download_images(img_urls, dest_dir):
         f.write('<html>\n<body>')
     for index, img_url in enumerate(img_urls):
         print(f'Retrieving {img_url} at index:{index}')
-        local_filename, headers = urllib.request.urlretrieve(img_url, f'{dest_dir}/img{index}')
+        local_filename, headers = urllib.request.urlretrieve(
+            img_url, f'{dest_dir}/img{index}')
         with open(f'{dest_dir}/index.html', 'a') as f:
             f.write(f'<img src="img{index}">')
     with open(f'{dest_dir}/index.html', 'a') as f:
